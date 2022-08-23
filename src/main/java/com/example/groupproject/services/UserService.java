@@ -5,6 +5,7 @@ import com.example.groupproject.dao.UserDao;
 import com.example.groupproject.entity.Role;
 import com.example.groupproject.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -18,7 +19,12 @@ public class UserService {
 
     @Autowired
     private RoleDao roleDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public User registerNewUser(User user) {
+
+
         return userDao.save(user);
     }
 
@@ -42,7 +48,7 @@ public class UserService {
            adminUser.setUserName("admin");
            adminUser.setUserFullName("Anjal Giri");
            adminUser.setEmail("anjal@gmail.com");
-           adminUser.setUserPassword("admin");
+           adminUser.setUserPassword(getEncodedPassword("admin"));
            Set<Role> adminRoles = new HashSet<>();
            adminRoles.add(adminRole);
            adminUser.setRole(adminRoles);
@@ -52,7 +58,7 @@ public class UserService {
            user.setUserName("Zodiac_God");
            user.setUserFullName("Suyog Dhakal");
            user.setEmail("suyog@gmail.com");
-           user.setUserPassword("Suyog@123");
+           user.setUserPassword(getEncodedPassword("Suyog@123"));
            Set<Role> userRoles = new HashSet<>();
            userRoles.add(userRole);
            user.setRole(userRoles);
@@ -62,12 +68,16 @@ public class UserService {
            merchant.setUserName("Rikrish");
            merchant.setUserFullName("Rikrish Shrestha");
            merchant.setEmail("rikrish@gmail.com");
-           merchant.setUserPassword("Rikrish@123");
+           merchant.setUserPassword(getEncodedPassword("Rikrish123"));
            Set<Role> merchantRoles = new HashSet<>();
            merchantRoles.add(merchantRole);
            merchant.setRole(merchantRoles);
            userDao.save(merchant);
 
+        }
+
+        public String getEncodedPassword(String password){
+        return passwordEncoder.encode(password);
         }
 
     }

@@ -4,8 +4,10 @@ import com.example.groupproject.services.JwtService;
 import com.example.groupproject.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -44,14 +46,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
              System.out.println("Jwt token is expired");
          }
       } else {
-          System.out.println("Jwt token doesnot start with Bearer");
+          System.out.println("Jwt token does not start with Bearer");
       }
 
       if(userName != null && SecurityContextHolder.getContext().getAuthentication() == null){
           UserDetails userDetails = jwtService.loadUserByUsername(userName);
 
-          if(jwtUtil)
+          if(jwtUtil.validateToken(jwtToken, userDetails)) {
+
+             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails,
+                     null,
+                     userDetails.getAuthorities());
+
+             usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+          }
+
       }
+
+      filterChain.doFilter(request, response);
 
     }
 
